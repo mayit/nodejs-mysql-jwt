@@ -14,8 +14,8 @@ const keys = require('../config/key');
 //     database: "node_mysql"
 // });
 
-router.put('/update', passport.authenticate('jwt', { session: false}), (req, res) => {
-    var sql = "Update Users SET firstname='"+req.body.firstname+"',lastname='"+req.body.lastname+"',email='"+req.body.email+"' WHERE id='"+req.user.id+"'";
+router.put('/update/:id', passport.authenticate('jwt', { session: false}), (req, res) => {
+    var sql = "Update Users SET firstname='"+req.body.firstname+"',lastname='"+req.body.lastname+"',email='"+req.body.email+"' WHERE id='"+req.params.id+"'";
     db.query(sql, 
     function (err, user, fields) {
         res.status(200).json({
