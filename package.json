@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,5 +17,8 @@
     "nodemon": "^1.19.2",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0"
+  },
+  "dependencies": {
+    "concurrently": "^4.1.2"
   }
 }

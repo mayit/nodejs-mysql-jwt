@@ -13,6 +13,20 @@ const keys = require('../config/key');
 //     password: "",
 //     database: "node_mysql"
 // });
+
+router.put('/update', passport.authenticate('jwt', { session: false}), (req, res) => {
+    var sql = "Update Users SET firstname='"+req.body.firstname+"',lastname='"+req.body.lastname+"',email='"+req.body.email+"' WHERE id='"+req.user.id+"'";
+    db.query(sql, 
+    function (err, user, fields) {
+        res.status(200).json({
+            code: res.statusCode,
+            message: 'Update Users',
+            data: user
+        });
+    });
+});
+
+
 router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
     db.query("SELECT * FROM users LIMIT 100", 
     function (err, result) {
