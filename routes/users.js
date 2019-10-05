@@ -4,6 +4,10 @@ const passport = require('passport');
 const multer = require('multer');
 
 const router  = express.Router();
+
+const validateRegisterInput = require('../validation/register');
+const validateLoginInput = require('../validation/login');
+
 const db = require('../config/database');
 const keys = require('../config/key');
 const storage = require('../config/storage');
@@ -41,24 +45,46 @@ router.post('/register',  multer({storage:storage}).array('image', 3), (req, res
 
 router.post('/add',  multer({storage:storage}).array('image', 3), (req, res) => {
 
-    const url = req.protocol +'://'+req.get('host');
+    const { errors, isValid } = validateRegisterInput(req.body);
 
-    var sql = "INSERT INTO users(firstname, lastname, email, password) VALUES('"+req.body.firstname+"','"+req.body.lastname+"','"+req.body.email+"','"+req.body.password+"')";
-    db.query(sql,
-    function (err, result) {
-       if (err) throw err;
-
-        req.files.filter(function (file) {
-            var item =  url + "/images/" + file.filename
-            var sql = "INSERT INTO images(user_id, path) VALUES('"+result.insertId+"','"+item+"')";
-            db.query(sql);
-        });
-        
-        res.json({
+    if(!isValid){
+        return res.status(400).json({
             code: res.statusCode,
-            message: 'Success',
-            data: result
+            errors
         });
+    }
+
+    var sql = "SELECT * FROM users WHERE email='"+req.body.email+"'";
+    db.query(sql, 
+        function (err, result) {
+        if(result.length > 0){
+            errors.email = 'Email Already Exists';
+            res.status(400).json({
+                code: res.statusCode,
+                errors
+            });
+            
+        }else{
+
+            const url = req.protocol +'://'+req.get('host');
+            var sql = "INSERT INTO users(firstname, lastname, email, password) VALUES('"+req.body.firstname+"','"+req.body.lastname+"','"+req.body.email+"','"+req.body.password+"')";
+            db.query(sql,
+            function (err, result) {
+                if (err) throw err;
+        
+                req.files.filter(function (file) {
+                    var item =  url + "/images/" + file.filename
+                    var sql = "INSERT INTO images(user_id, path) VALUES('"+result.insertId+"','"+item+"')";
+                    db.query(sql);
+                });
+                
+                res.json({
+                    code: res.statusCode,
+                    message: 'Success',
+                    data: result
+                });
+            });
+        }
     });
 });
 
@@ -75,6 +101,16 @@ router.delete('/:id', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
+
+    const { errors, isValid } = validateLoginInput(req.body);
+
+    if(!isValid){
+        return res.status(400).json({
+            code: res.statusCode,
+            errors
+        });
+    }
+
     var sql = "SELECT * FROM Users WHERE email='"+req.body.email+"' and password='"+req.body.password+"'";
     db.query(sql, 
     function (err, [user]) {
@@ -107,7 +143,12 @@ router.get('/current', passport.authenticate('jwt', { session: false}), (req, re
             message: 'Current Users',
             data: user
         });
-    });
+    }).catch(err => 
+                res.status(404).json({ 
+                code: res.statusCode, 
+                errors: 'Not Found User'
+            })
+    );
 });
 
 router.get('/post', passport.authenticate('jwt', { session: false }), (req, res) => {
