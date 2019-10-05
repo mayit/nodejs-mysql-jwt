@@ -42,19 +42,23 @@ router.post('/register',  multer({storage:storage}).array('image', 3), (req, res
 router.post('/add',  multer({storage:storage}).array('image', 3), (req, res) => {
 
     const url = req.protocol +'://'+req.get('host');
-    var images = [];
-    var i = 0;
-    req.files.filter(function (file) {
-        var item =  url + "/images/" + file.filename
-        images.push(item);
-        i++;
-    });
 
-    var sql = "INSERT INTO users(firstname, lastname, email, password, path) VALUES('"+req.body.firstname+"','"+req.body.lastname+"','"+req.body.email+"','"+req.body.password+"', '"+images[0]+"')";
+    var sql = "INSERT INTO users(firstname, lastname, email, password) VALUES('"+req.body.firstname+"','"+req.body.lastname+"','"+req.body.email+"','"+req.body.password+"')";
     db.query(sql,
     function (err, result) {
        if (err) throw err;
-        res.json(result);
+
+        req.files.filter(function (file) {
+            var item =  url + "/images/" + file.filename
+            var sql = "INSERT INTO images(user_id, path) VALUES('"+result.insertId+"','"+item+"')";
+            db.query(sql);
+        });
+        
+        res.json({
+            code: res.statusCode,
+            message: 'Success',
+            data: result
+        });
     });
 });
 
