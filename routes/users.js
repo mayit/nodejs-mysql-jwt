@@ -1,18 +1,13 @@
 const express = require('express'); 
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-//const mysql = require('mysql')
+const multer = require('multer');
+
 const router  = express.Router();
 const db = require('../config/database');
 const keys = require('../config/key');
+const storage = require('../config/storage');
 
-
-// const db = mysql.createConnection({
-//     host: "localhost",
-//     user: "root",
-//     password: "",
-//     database: "node_mysql"
-// });
 
 router.put('/update/:id', passport.authenticate('jwt', { session: false}), (req, res) => {
     var sql = "Update Users SET firstname='"+req.body.firstname+"',lastname='"+req.body.lastname+"',email='"+req.body.email+"' WHERE id='"+req.params.id+"'";
@@ -35,7 +30,8 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
     })
 });
 
-router.post('/register', (req, res) => {
+router.post('/register',  multer({storage:storage}).array('image', 3), (req, res) => {
+
     db.query("INSERT INTO users SET ?",req.body, 
     function (err, result) {
        if (err) throw err;
@@ -43,8 +39,18 @@ router.post('/register', (req, res) => {
     })
 });
 
-router.post('/add', (req, res) => {
-    var sql = "INSERT INTO users(firstname, lastname, email, password) VALUES('"+req.body.firstname+"','"+req.body.lastname+"','"+req.body.email+"','"+req.body.password+"')";
+router.post('/add',  multer({storage:storage}).array('image', 3), (req, res) => {
+
+    const url = req.protocol +'://'+req.get('host');
+    var images = [];
+    var i = 0;
+    req.files.filter(function (file) {
+        var item =  url + "/images/" + file.filename
+        images.push(item);
+        i++;
+    });
+
+    var sql = "INSERT INTO users(firstname, lastname, email, password, path) VALUES('"+req.body.firstname+"','"+req.body.lastname+"','"+req.body.email+"','"+req.body.password+"', '"+images[0]+"')";
     db.query(sql,
     function (err, result) {
        if (err) throw err;

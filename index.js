@@ -6,6 +6,7 @@ const users = require('./routes/users');
 
 const app = express()
 app.use(bodyParser.urlencoded());
+app.use('/images', express.static(__dirname + '/images'));
 app.use(passport.initialize()); require('./config/passport')(passport);
 app.use(function (req, res, next) {
  //    ["http://localhost:3001", "http://localhost:3000"].map(function(domain) {
