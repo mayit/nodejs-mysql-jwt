@@ -34,7 +34,7 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
     })
 });
 
-router.post('/register',  multer({storage:storage}).array('image', 3), (req, res) => {
+router.post('/register',  multer({storage:storage}).array('image'), (req, res) => {
 
     db.query("INSERT INTO users SET ?",req.body, 
     function (err, result) {
@@ -43,7 +43,7 @@ router.post('/register',  multer({storage:storage}).array('image', 3), (req, res
     })
 });
 
-router.post('/add',  multer({storage:storage}).array('image', 3), (req, res) => {
+router.post('/add',  multer({storage:storage}).array('image'), (req, res) => {
 
     const { errors, isValid } = validateRegisterInput(req.body);
 
@@ -63,7 +63,7 @@ router.post('/add',  multer({storage:storage}).array('image', 3), (req, res) => 
                 code: res.statusCode,
                 errors
             });
-            
+
         }else{
 
             const url = req.protocol +'://'+req.get('host');
@@ -163,4 +163,4 @@ router.get('/post', passport.authenticate('jwt', { session: false }), (req, res)
         });
 });
 
-module.exports=router;
+module.exports = router;
