@@ -5,12 +5,12 @@ const multer = require('multer');
 
 const router  = express.Router();
 
-const validateRegisterInput = require('../validation/register');
-const validateLoginInput = require('../validation/login');
+const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
-const db = require('../config/database');
-const keys = require('../config/key');
-const storage = require('../config/storage');
+const db = require('../../config/database');
+const keys = require('../../config/key');
+const storage = require('../../config/storage');
 
 
 router.put('/update/:id', passport.authenticate('jwt', { session: false}), (req, res) => {

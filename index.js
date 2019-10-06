@@ -3,7 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const path = require('path');
-const users = require('./routes/users'); 
+const users = require('./routes/api/users'); 
 const viewLanding = require('./routes/view/index'); 
 
 const app = express()
